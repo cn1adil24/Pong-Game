@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>The Impossible Pong Game</title>
+</head>
+<body>
+	<script type="text/javascript">alert('Continue to play')</script>
+	<canvas id="gameCanvas", width="800", height="600" onmousemove="getCoordinates(event)"></canvas>
+	<br>
+	<label id="p1score">Player 1 Score: 0</label>
+	<br>
+	<label id="p2score">Player 2 Score: 0</label>
+
+	<script type="text/javascript">
+
+		var canvas;
+		var canvasContext;
+		var ball = {
+			x: 400,
+			y: 300,
+			speedX: 10,
+			speedY: 5,
+			radius: 10
+		};
+		var paddle_p1 = {
+			x: 1,
+			y: 0,
+			height: 100,
+			width: 10,
+			score: 0
+		}
+		var paddle_p2 = {
+			x: 789,
+			y: 300,
+			height: 100,
+			width: 10,
+			score: 0,
+			difficulty: 0
+		}
+
+		window.onload = function(){
+			canvas = document.getElementById('gameCanvas');
+			canvasContext = canvas.getContext('2d');
+			var fps = 30;
+			setInterval(function(){
+				drawCanvas();
+				move();
+				moveAI();
+			}, 1000/fps);
+		}
+
+		function drawCanvas(){
+			// Drawing canvas
+			drawRectangle('black', 0, 0, canvas.width, canvas.height);			
+
+			// Drawing the middle lane
+			drawBoundary();
+
+			// Drawing left player pad
+			drawRectangle('white', paddle_p1.x, paddle_p1.y, paddle_p1.width, paddle_p1.height);
+
+			// Drawing right player pad
+			drawRectangle('white', paddle_p2.x, paddle_p2.y, paddle_p2.width, paddle_p2.height);
+
+			// Drawing the ball
+			drawCircle('white', ball.x, ball.y, ball.radius);
+		}
+
+		function drawRectangle(style, x, y, width, height) {
+			canvasContext.fillStyle = style;
+			canvasContext.fillRect(x, y, width, height);
+		}
+
+		function drawCircle(style, x, y, radius) {
+			canvasContext.fillStyle = style;
+			canvasContext.beginPath();
+			canvasContext.arc(x, y, radius, 0, Math.PI * 2, true);
+			canvasContext.fill();
+		}
+
+		function move(){			
+
+			// Check if ball collides with left wall or top screen
+			if (ball.x + ball.speedX < 0)
+			{				
+
+				// Left paddle missed the ball
+				if (ball.y > paddle_p1.y && ball.y < paddle_p1.y + paddle_p1.height)
+				{
+					//reset(2);
+					ball.speedX = -ball.speedX;
+					var deltaY = ball.y - (paddle_p1.y + paddle_p1.height/2);
+					ball.speedY = 0.35 * deltaY;
+
+					if (ball.speedX < 0) ball.speedX -= 1;
+					else ball.speedX += 1
+				}
+				else
+				{
+					reset(2);
+				}
+			}
+			if (ball.y + ball.speedY < 0)
+			{
+				ball.speedY = -ball.speedY;				
+			}
+
+			// Check if ball collides with right wall or bottom screen
+			if (ball.x + ball.speedX > canvas.width)
+			{
+
+				// Right paddle missed the ball
+				if (ball.y > paddle_p2.y && ball.y < paddle_p2.y + paddle_p2.height)
+				{
+					ball.speedX = -ball.speedX;
+					var deltaY = ball.y - (paddle_p2.y + paddle_p2.height/2);
+					ball.speedY = 0.35 * deltaY;
+
+					if (ball.speedX < 0) ball.speedX -= 1;
+					else ball.speedX += 1
+				}
+				else
+				{
+					reset(1);
+				}
+			}
+			if (ball.y + ball.speedY > canvas.height)
+			{
+				ball.speedY = -ball.speedY;
+			}
+
+			ball.x += ball.speedX;
+			ball.y += ball.speedY;
+		}
+
+		function getCoordinates(event) {
+			paddle_p1.y = event.clientY - (paddle_p1.height / 2);
+		}
+
+		function reset(player) {
+			ball.x = 400;
+			ball.y = 300;
+			ball.speedX = 10;
+			ball.speedY = 5;
+
+			if (player == 1) {
+				paddle_p1.score += 1
+				ball.speedX = -ball.speedX;
+				document.getElementById('p1score').innerHTML = "Player 1 Score: " + paddle_p1.score;
+				paddle_p2.difficulty += 1;
+			}
+			else {
+				paddle_p2.score += 1
+				document.getElementById('p2score').innerHTML = "Player 2 Score: " + paddle_p2.score;
+				paddle_p2.difficulty = 0;
+			}
+		}
+
+		function moveAI() {
+			var centre = paddle_p2.y + paddle_p2.height / 2;
+			if (centre > ball.y + 35) {
+				paddle_p2.y -= (paddle_p2.difficulty + 6);
+			}
+			else if (centre < ball.y - 35){
+				paddle_p2.y += (paddle_p2.difficulty + 6);
+			}			
+		}
+
+		function drawBoundary() {
+			for (let i = 0; i < canvas.height; i += 40) {
+				drawRectangle('white', canvas.width/2-1, i, 2, 20);
+			}
+		}
+
+	</script>
+</body>
+</html>
