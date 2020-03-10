@@ -1,4 +1,4 @@
-# Pong Game
+# Pong Game using JavaScript
 A classic pong game against an AI opponent. Here are some key points about the game:
 - The game is never ending, it does not stop.
 - Your opponent is grumpy, it gets angry when it loses so watch out!
